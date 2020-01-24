@@ -56,6 +56,7 @@ $ bash this_is_how_you_use_ssh.script
 Now you can send/attach this file to any message and the person will be able to watch your local recording as long as they have the required tools (a message will be shown if you miss any of the dependencies)
 
 If you need to replay it on a faster pace you can add a multiplier next to it as so:
+
 ```shell
 $ bash this_is_how_you_use_ssh.script 3
 ```
