@@ -64,3 +64,4 @@ $ bash this_is_how_you_use_ssh.script 3
 This will play the same recording 3x faster.
 
 **Note:** The script automatically removes any long delays on the final replay, for instance if you start a recording and the output and input stops for 1 hour (if you stop working to have lunch and then come back) the final output will only show 10s difference in that specific part of the replay.
+
