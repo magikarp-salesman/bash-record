@@ -10,6 +10,8 @@ function record_() {
 	timing_file=`mktemp`
 	script_file=`mktemp`
 	fast_timing_file=`mktemp`
+	prev_history_file=`mktemp`
+	cp ~/.bash_history $prev_history_file
 	script -t $script_file 2> $timing_file
 	# FAST RECORD
 	while read line; do
@@ -23,9 +25,13 @@ function record_() {
 		fi
 		printf "%s %s\n" "$var1" "$var2" >> $fast_timing_file
 	done < $timing_file 
+	# RECORD HISTORY
+	commands=`/usr/bin/diff -u $prev_history_file ~/.bash_history | grep -E "^\+" | grep -v -E "^\+#" | grep -v -E "^\+\+\+" | cut -c 2-`
+  # ZIP	INFO
 	timing_64=`cat $timing_file | gzip -cn9 | base64 -w 0`
 	script_64=`cat $script_file | gzip -cn9 | base64 -w 0`
 	fast_timing_64=`cat $fast_timing_file | gzip -cn9 | base64 -w 0`
+	commands_64=`echo "$commands" | gzip -cn9 | base64 -w 0`
 	template=$(cat <<'END_OF_DOCUMENT'
 #!/bin/bash
 # script replay file created with: https://github.com/magikarp-salesman/bash-record
@@ -41,21 +47,27 @@ command_exists scriptreplay
 timing_file=`mktemp`
 script_file=`mktemp`
 fast_timing_file=`mktemp`
+commands=`mktemp`
 YELLOW_BG='\033[43m'
 BLACK='\033[30m'
 RESET='\033[0m'
 echo '%s' | base64 -d --ignore-garbage | gzip -cd > $timing_file
 echo '%s' | base64 -d --ignore-garbage | gzip -cd > $script_file
 echo '%s' | base64 -d --ignore-garbage | gzip -cd > $fast_timing_file
-scriptreplay $fast_timing_file $script_file $@
+echo '%s' | base64 -d --ignore-garbage | gzip -cd > $commands
+if [ "$1" = "commands" ]; then
+    cat $commands
+else
+    scriptreplay $fast_timing_file $script_file $@
+fi
 echo -e "${YELLOW_BG}${BLACK} end of script ${RESET}"
-rm $timing_file $script_file $fast_timing_file
+rm $timing_file $script_file $fast_timing_file $commands
 exit 0
 
 END_OF_DOCUMENT
 	)
-	printf "$template" $timing_64 $script_64 $fast_timing_64 > $filename
-	rm $timing_file $script_file $fast_timing_file
+	printf "$template" $timing_64 $script_64 $fast_timing_64 $commands_64 > $filename
+	rm $timing_file $script_file $fast_timing_file $prev_history_file
 }
 
 # vim: ts=2 sw=4 noexpandtab foldenable foldmethod=indent ff=unix filetype=sh nowrap :

@@ -65,3 +65,12 @@ This will play the same recording 3x faster.
 
 **Note:** The script automatically removes any long delays on the final replay, for instance if you start a recording and the output and input stops for 1 hour (if you stop working to have lunch and then come back) the final output will only show 10s difference in that specific part of the replay.
 
+As an add-on the script can now also list the commands typed
+To get a complete list of the commands issued during the session type:
+
+```shell
+$ bash this_is_how_you_use_ssh.script commands
+```
+
+**Note:** This uses bash history file for reference so it will not keep commands issued on subshells/ssh sessions or other shells.
+
